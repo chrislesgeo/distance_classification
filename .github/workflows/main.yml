@@ -1,15 +1,13 @@
-name: Re-run Notebook on Code Change
+name: Re-run Jupyter Notebook on Code Change
 
 on:
   push:
     branches: [ main ]
-    # Adjust to match where your notebooks and code files live:
     paths:
       - '**.ipynb'
       - '**.py'
   pull_request:
     branches: [ main ]
-    # Same paths, if you want PRs to trigger it as well:
     paths:
       - '**.ipynb'
       - '**.py'
@@ -25,24 +23,17 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          # Adjust to the Python version you need
-          python-version: '3.12'
+          python-version: '3.10'
 
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          # Install dependencies (including jupyter, nbconvert, and wandb)
           pip install -r requirements.txt
-          # If you don't have a requirements.txt, you can directly install:
-          # pip install jupyter nbconvert wandb
+          pip install jupyter nbconvert wandb scikit-learn matplotlib opencv-python
 
       - name: Log into Weights & Biases
         run: wandb login ${{ secrets.WANDB_API_KEY }}
 
       - name: Run Jupyter Notebook
         run: |
-          # Execute the notebook in-place, or output to a different file.
-          jupyter nbconvert \
-            --to notebook \
-            --execute distance_classification.ipynb \
-            --output anything.ipynb
+          jupyter nbconvert --to notebook --execute distance_classification.ipynb --output distance_classification_out.ipynb
