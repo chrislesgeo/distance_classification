@@ -44,5 +44,5 @@ jobs:
           # Execute the notebook in-place, or output to a different file.
           jupyter nbconvert \
             --to notebook \
-            --execute path/to/your_notebook.ipynb \
-            --output path/to/your_notebook_out.ipynb
+            --execute distance_classification.ipynb \
+            --output anything.ipynb
