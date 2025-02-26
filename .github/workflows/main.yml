@@ -1,16 +1,48 @@
-name: Run Tests
-on: [push]
+name: Re-run Notebook on Code Change
+
+on:
+  push:
+    branches: [ main ]
+    # Adjust to match where your notebooks and code files live:
+    paths:
+      - '**.ipynb'
+      - '**.py'
+  pull_request:
+    branches: [ main ]
+    # Same paths, if you want PRs to trigger it as well:
+    paths:
+      - '**.ipynb'
+      - '**.py'
+
 jobs:
- test:
-  runs-on: ubuntu-latest
-  steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
-    - name: Install dependencies
-      run: |
-        pip install numpy pandas scikit-learn
-    - name: Run test script
-      run: python test_script.py
+  run-notebook:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          # Adjust to the Python version you need
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          # Install dependencies (including jupyter, nbconvert, and wandb)
+          pip install -r requirements.txt
+          # If you don't have a requirements.txt, you can directly install:
+          # pip install jupyter nbconvert wandb
+
+      - name: Log into Weights & Biases
+        run: wandb login ${{ secrets.WANDB_API_KEY }}
+
+      - name: Run Jupyter Notebook
+        run: |
+          # Execute the notebook in-place, or output to a different file.
+          jupyter nbconvert \
+            --to notebook \
+            --execute path/to/your_notebook.ipynb \
+            --output path/to/your_notebook_out.ipynb
