@@ -1,39 +1,25 @@
-name: Re-run Jupyter Notebook on Code Change
-
-on:
-  push:
-    branches: [ main ]
-    paths:
-      - '**.ipynb'
-      - '**.py'
-  pull_request:
-    branches: [ main ]
-    paths:
-      - '**.ipynb'
-      - '**.py'
-
+name: Run Notebook
+on: [push]
 jobs:
-  run-notebook:
+  test:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v3
-
+      - uses: actions/checkout@v3
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
-
+          python-version: '3.11'
       - name: Install dependencies
         run: |
-          pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install jupyter nbconvert wandb scikit-learn matplotlib opencv-python
-
-      - name: Log into Weights & Biases
-        run: wandb login ${{ secrets.WANDB_API_KEY }}
-
+          pip install numpy pandas matplotlib scikit-learn opencv-python wandb jupyter
       - name: Run Jupyter Notebook
         run: |
-          jupyter nbconvert --to notebook --execute distance_classification.ipynb --output distance_classification_out.ipynb
+          jupyter nbconvert --to notebook --execute distance_classification.ipynb --output executed_notebook.ipynb
+      - name: Verify Notebook Execution
+        run: |
+          if [ -f "executed_notebook.ipynb" ]; then
+            echo "Notebook executed successfully"
+          else
+            echo "Notebook execution failed"
+            exit 1
+          fi
